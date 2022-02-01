@@ -8,7 +8,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,8 +15,8 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(),
       darkTheme: ThemeData(
-          scaffoldBackgroundColor: Color(0xff1d1d1d),
-          canvasColor: Color(0xff1d1d1d)),
+          scaffoldBackgroundColor: const Color(0xff1d1d1d),
+          canvasColor: const Color(0xff1d1d1d)),
       themeMode: ThemeMode.system,
       home: const CalculatorPage(),
     );
