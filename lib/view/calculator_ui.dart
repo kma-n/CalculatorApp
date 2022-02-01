@@ -44,7 +44,7 @@ class _CalculatorPage extends State<CalculatorPage> {
       "0": () => _numIn(0),
       "AC": () => _reset(),
       "+/-": () => _frac(),
-      ".": () => _frac(),
+      ".": () => _decimalV("."),
       "÷": () => _opIn(Operator.divide),
       "x": () => _opIn(Operator.multiply),
       "+": () => _opIn(Operator.plus),
@@ -63,7 +63,19 @@ class _CalculatorPage extends State<CalculatorPage> {
     ].where((element) => element != "").join(' ');
   }
 
-  void _frac() {}
+  void _decimalV(string) {
+    setState(() {
+      if (op == null) {
+      } else {}
+    });
+  }
+
+  void _frac() {
+    setState(() {
+      if (op == null) {
+      } else {}
+    });
+  }
 
   void _reset() {
     setState(() {
@@ -108,6 +120,9 @@ class _CalculatorPage extends State<CalculatorPage> {
           result = (_leftNum! - _rightNum!);
         }
       }
+      _leftNum = null;
+      _rightNum = null;
+      op = null;
     });
   }
 
