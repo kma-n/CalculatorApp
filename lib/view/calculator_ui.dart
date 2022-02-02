@@ -19,6 +19,7 @@ class _CalculatorPage extends State<CalculatorPage> {
 
   final _buttonAction = <String, VoidCallback>{};
   num? _leftNum;
+  //map of operators
   final _operatorStrings = <Operator, String>{
     Operator.divide: "÷",
     Operator.minus: "-",
@@ -31,6 +32,7 @@ class _CalculatorPage extends State<CalculatorPage> {
   @override
   void initState() {
     // TODO: implement initState
+    //key:values pairs for callback
     _buttonAction.addAll({
       "1": () => _numIn(1),
       "2": () => _numIn(2),
@@ -56,6 +58,7 @@ class _CalculatorPage extends State<CalculatorPage> {
   }
 
   String get _calc {
+    // Concatenate Strings for the input nums
     return [
       _leftNum?.toString() ?? "",
       _operatorStrings[op] ?? "",
@@ -66,7 +69,18 @@ class _CalculatorPage extends State<CalculatorPage> {
   void _decimalV(string) {
     setState(() {
       if (op == null) {
-      } else {}
+        if (_leftNum != null) {
+          var check = _leftNum.toString();
+          check += string;
+          print(check);
+          _leftNum = int.tryParse(check);
+        }
+      } else {
+        if (_leftNum != null) {
+          string = _rightNum.toString() + string;
+          _rightNum = int.tryParse(string);
+        }
+      }
     });
   }
 
@@ -77,6 +91,7 @@ class _CalculatorPage extends State<CalculatorPage> {
     });
   }
 
+  //clearing all values
   void _reset() {
     setState(() {
       _leftNum = null;
@@ -86,22 +101,26 @@ class _CalculatorPage extends State<CalculatorPage> {
     });
   }
 
+// func to input nums Onclick through callback
   void _numIn(int num) {
     setState(() {
       if (op == null) {
-        _leftNum = (_leftNum ?? 0) * 10 + num;
+        _leftNum = (_leftNum ?? 0) * 10 +
+            num; // loop once = num :(5), loop twice num*10+num :(5*10=50,50+5=55);
       } else {
         _rightNum = (_rightNum ?? 0) * 10 + num;
       }
     });
   }
 
+  //set the operator
   void _opIn(Operator opr) {
     setState(() {
       op = opr;
     });
   }
 
+// the "=" calculation
   void _answer() {
     if (op == null || _leftNum == null || _rightNum == null) {
       return;
