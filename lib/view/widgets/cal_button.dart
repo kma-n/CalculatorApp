@@ -22,7 +22,7 @@ class _CalbuttonState extends State<Calbutton> {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return Container(
-        height: height / 11,
+        height: height / 12,
         width: (widget.num == "0") ? width / 2.3 : width / 6,
         decoration: BoxDecoration(
           color: Theme.of(context).canvasColor,

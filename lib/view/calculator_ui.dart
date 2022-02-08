@@ -1,4 +1,4 @@
-import 'package:calculator_app/view/widgets/calButton.dart';
+import 'package:calculator_app/view/widgets/cal_button.dart';
 import 'package:calculator_app/view/widgets/results.dart';
 import 'package:flutter/material.dart';
 
@@ -14,8 +14,11 @@ class CalculatorPage extends StatefulWidget {
 enum Operator { plus, minus, multiply, divide, mod }
 
 class _CalculatorPage extends State<CalculatorPage> {
+  var firstDec;
+  bool isDecimal = false;
   Operator? op;
   dynamic result = "";
+  var secondDec;
 
   final _buttonAction = <String, VoidCallback>{};
   num? _leftNum;
@@ -25,6 +28,7 @@ class _CalculatorPage extends State<CalculatorPage> {
     Operator.minus: "-",
     Operator.multiply: "*",
     Operator.plus: "+",
+    Operator.mod: "%"
   };
 
   num? _rightNum;
@@ -45,7 +49,7 @@ class _CalculatorPage extends State<CalculatorPage> {
       "9": () => _numIn(9),
       "0": () => _numIn(0),
       "AC": () => _reset(),
-      "+/-": () => _frac(),
+      "+/-": () => _toggle(),
       ".": () => _decimalV("."),
       "÷": () => _opIn(Operator.divide),
       "x": () => _opIn(Operator.multiply),
@@ -70,24 +74,37 @@ class _CalculatorPage extends State<CalculatorPage> {
     setState(() {
       if (op == null) {
         if (_leftNum != null) {
-          var check = _leftNum.toString();
-          check += string;
-          print(check);
-          _leftNum = int.tryParse(check);
+          firstDec = _leftNum.toString();
+          firstDec += string;
         }
       } else {
-        if (_leftNum != null) {
-          string = _rightNum.toString() + string;
-          _rightNum = int.tryParse(string);
+        if (_rightNum != null) {
+          secondDec = _rightNum.toString();
+          secondDec += string;
         }
       }
     });
   }
 
-  void _frac() {
+  void _toggle() {
     setState(() {
       if (op == null) {
-      } else {}
+        var m = "-";
+        if (_leftNum != null) {
+          var check = _leftNum.toString();
+          m += check;
+          _leftNum = int.parse(m);
+        }
+
+        print(m);
+      } else {
+        var m = "-";
+        if (_rightNum != null) {
+          var check = _rightNum.toString();
+          m += check;
+          _rightNum = int.parse(m);
+        }
+      }
     });
   }
 
@@ -98,17 +115,34 @@ class _CalculatorPage extends State<CalculatorPage> {
       _rightNum = null;
       op = null;
       result = "";
+      firstDec = null;
+      secondDec = null;
     });
   }
 
-// func to input nums Onclick through callback
-  void _numIn(int num) {
+//func to input nums Onclick through callback
+  void _numIn(dynamic num) {
     setState(() {
       if (op == null) {
-        _leftNum = (_leftNum ?? 0) * 10 +
-            num; // loop once = num :(5), loop twice num*10+num :(5*10=50,50+5=55);
+        if (firstDec != null) {
+          _leftNum = num;
+          var check = _leftNum.toString();
+          firstDec += check;
+          _leftNum = double.parse(firstDec);
+        } else {
+          _leftNum = (_leftNum ?? 0) * 10 + num;
+        }
+
+        // loop once = num :(5), loop twice num*10+num :(5*10=50,50+5=55);
       } else {
-        _rightNum = (_rightNum ?? 0) * 10 + num;
+        if (secondDec != null) {
+          _rightNum = num;
+          var check = _rightNum.toString();
+          secondDec += check;
+          _rightNum = double.parse(secondDec);
+        } else {
+          _rightNum = (_rightNum ?? 0) * 10 + num;
+        }
       }
     });
   }
