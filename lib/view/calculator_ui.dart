@@ -61,12 +61,12 @@ class _CalculatorPage extends State<CalculatorPage> {
     super.initState();
   }
 
+  // Concatenate Strings for the input nums
   String get _calc {
-    // Concatenate Strings for the input nums
     return [
       _leftNum?.toString() ?? "",
       _operatorStrings[op] ?? "",
-      _rightNum?.toString() ?? ""
+      _rightNum?.toString() ?? "",
     ].where((element) => element != "").join(' ');
   }
 
@@ -76,6 +76,8 @@ class _CalculatorPage extends State<CalculatorPage> {
         if (_leftNum != null) {
           firstDec = _leftNum.toString();
           firstDec += string;
+        } else {
+          firstDec = "0.";
         }
       } else {
         if (_rightNum != null) {
@@ -95,8 +97,6 @@ class _CalculatorPage extends State<CalculatorPage> {
           m += check;
           _leftNum = int.parse(m);
         }
-
-        print(m);
       } else {
         var m = "-";
         if (_rightNum != null) {
@@ -130,7 +130,9 @@ class _CalculatorPage extends State<CalculatorPage> {
           firstDec += check;
           _leftNum = double.parse(firstDec);
         } else {
-          _leftNum = (_leftNum ?? 0) * 10 + num;
+          if (_leftNum.toString().length <= 15) {
+            _leftNum = (_leftNum ?? 0) * 10 + num;
+          }
         }
 
         // loop once = num :(5), loop twice num*10+num :(5*10=50,50+5=55);
@@ -141,7 +143,9 @@ class _CalculatorPage extends State<CalculatorPage> {
           secondDec += check;
           _rightNum = double.parse(secondDec);
         } else {
-          _rightNum = (_rightNum ?? 0) * 10 + num;
+          if (_rightNum.toString().length <= 15) {
+            _rightNum = (_rightNum ?? 0) * 10 + num;
+          }
         }
       }
     });
@@ -150,13 +154,21 @@ class _CalculatorPage extends State<CalculatorPage> {
   //set the operator
   void _opIn(Operator opr) {
     setState(() {
-      op = opr;
+      if (op == null) {
+        op = opr;
+      } else {
+        if (opr == Operator.mod) {
+          _answer();
+        }
+        _answer();
+        op = opr;
+      }
     });
   }
 
 // the "=" calculation
   void _answer() {
-    if (op == null || _leftNum == null || _rightNum == null) {
+    if (op == null) {
       return;
     }
     setState(() {
@@ -168,12 +180,13 @@ class _CalculatorPage extends State<CalculatorPage> {
         } else if (op == Operator.multiply) {
           result = (_leftNum! * _rightNum!);
         } else if (op == Operator.mod) {
-          result = (_leftNum! % _rightNum!);
+          result = (_leftNum! / 100);
         } else if (op == Operator.minus) {
           result = (_leftNum! - _rightNum!);
         }
       }
-      _leftNum = null;
+      //==result
+      _leftNum = result;
       _rightNum = null;
       op = null;
     });

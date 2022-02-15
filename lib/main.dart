@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(),
       darkTheme: ThemeData(
-          scaffoldBackgroundColor: const Color(0xff1d1d1d),
+          scaffoldBackgroundColor: const Color(0xff1d1d1d).withOpacity(0.9),
           canvasColor: const Color(0xff1d1d1d)),
       themeMode: ThemeMode.system,
       home: const CalculatorPage(),

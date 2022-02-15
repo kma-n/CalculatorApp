@@ -21,36 +21,73 @@ class _CalbuttonState extends State<Calbutton> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    return Container(
-        height: height / 12,
-        width: (widget.num == "0") ? width / 2.3 : width / 6,
-        decoration: BoxDecoration(
-          color: Theme.of(context).canvasColor,
-          borderRadius: BorderRadius.circular(36),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 2,
-              offset: const Offset(0, 1),
-              color: Colors.black.withOpacity(0.3),
+    var theme = Theme.of(context).brightness;
+
+    return (widget.num.toString() != "0")
+        ? SizedBox(
+            height: height / 11.5,
+            width: (widget.num == "0") ? width / 2.2 : width / 5.3,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: Theme.of(context).canvasColor,
+                shadowColor: Theme.of(context).canvasColor,
+                elevation: 7,
+                shape: const CircleBorder(),
+                padding: const EdgeInsets.all(12),
+              ),
+              onPressed: () => widget.onTap(),
+              child: Text(
+                widget.num,
+                style: TextStyle(
+                    color: (widget.color == null) ? Colors.grey : widget.color,
+                    fontSize: 32),
+              ),
             ),
+          )
+        : zeroButton(theme, height, width);
+  }
+
+  Widget zeroButton(theme, height, width) {
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+          ),
+          BoxShadow(
+            color: Theme.of(context).canvasColor,
+            spreadRadius: -12.0,
+            blurRadius: 12.0,
+          ),
+        ],
+        borderRadius: const BorderRadius.all(Radius.circular(32)),
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).canvasColor.withOpacity(0.2),
+            const Color(0xffffffff),
+            const Color(0xffffffff),
           ],
         ),
-        child: InkWell(
-          onTap: () {
-            widget.onTap();
-          },
-          child: Container(
-            padding:
-                (widget.num == "0") ? const EdgeInsets.only(left: 20) : null,
-            alignment:
-                (widget.num == "0") ? Alignment.centerLeft : Alignment.center,
-            child: Text(
-              widget.num,
-              style: TextStyle(
-                  color: (widget.color == null) ? Colors.grey : widget.color,
-                  fontSize: 32),
-            ),
-          ),
-        ));
+      ),
+      height: height / 13,
+      width: width / 2.2,
+      child: ElevatedButton(
+        style: ButtonStyle(
+            elevation: MaterialStateProperty.all(10),
+            backgroundColor:
+                MaterialStateProperty.all<Color>(Theme.of(context).canvasColor),
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(32.0),
+            ))),
+        onPressed: () => widget.onTap(),
+        child: Text(
+          widget.num,
+          style: TextStyle(
+              color: (widget.color == null) ? Colors.grey : widget.color,
+              fontSize: 32),
+        ),
+      ),
+    );
   }
 }
