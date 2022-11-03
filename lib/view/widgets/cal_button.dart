@@ -50,20 +50,23 @@ class _CalbuttonState extends State<Calbutton> {
   Widget zeroButton(theme, height, width) {
     return Container(
       decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-          ),
-          BoxShadow(
-            color: Theme.of(context).canvasColor,
-            spreadRadius: -12.0,
-            blurRadius: 12.0,
-          ),
-        ],
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Theme.of(context).canvasColor,
+        //     spreadRadius: -12.0,
+        //     blurRadius: 12.0,
+        //   ),
+        //   BoxShadow(
+        //     color: Colors.white,
+        //       spreadRadius: 12.0,
+        //     blurRadius: 12.0,
+        //   ),
+        // ],
         borderRadius: const BorderRadius.all(Radius.circular(32)),
         gradient: LinearGradient(
           colors: [
-            Theme.of(context).canvasColor.withOpacity(0.2),
+            Theme.of(context).canvasColor,
+            Theme.of(context).canvasColor,
             const Color(0xffffffff),
             const Color(0xffffffff),
           ],

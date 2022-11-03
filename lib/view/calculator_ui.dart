@@ -1,6 +1,7 @@
 import 'package:calculator_app/view/widgets/cal_button.dart';
 import 'package:calculator_app/view/widgets/results.dart';
 import 'package:flutter/material.dart';
+import 'package:calculator_app/stack/stack_imp.dart' as my_stack;
 
 class CalculatorPage extends StatefulWidget {
   const CalculatorPage({
@@ -14,181 +15,199 @@ class CalculatorPage extends StatefulWidget {
 enum Operator { plus, minus, multiply, divide, mod }
 
 class _CalculatorPage extends State<CalculatorPage> {
-  var firstDec;
-  bool isDecimal = false;
+  var input = '';
   Operator? op;
+  my_stack.Stack opStack = my_stack.Stack();
+  my_stack.Stack operandStack = my_stack.Stack();
   dynamic result = "";
-  var secondDec;
 
   final _buttonAction = <String, VoidCallback>{};
-  num? _leftNum;
-  //map of operators
-  final _operatorStrings = <Operator, String>{
-    Operator.divide: "÷",
-    Operator.minus: "-",
-    Operator.multiply: "*",
-    Operator.plus: "+",
-    Operator.mod: "%"
-  };
-
-  num? _rightNum;
 
   @override
   void initState() {
     // TODO: implement initState
+
     //key:values pairs for callback
+
     _buttonAction.addAll({
-      "1": () => _numIn(1),
-      "2": () => _numIn(2),
-      "3": () => _numIn(3),
-      "4": () => _numIn(4),
-      "5": () => _numIn(5),
-      "6": () => _numIn(6),
-      "7": () => _numIn(7),
-      "8": () => _numIn(8),
-      "9": () => _numIn(9),
-      "0": () => _numIn(0),
+      "1": () => _numIn("1"),
+      "2": () => _numIn("2"),
+      "3": () => _numIn("3"),
+      "4": () => _numIn("4"),
+      "5": () => _numIn("5"),
+      "6": () => _numIn("6"),
+      "7": () => _numIn("7"),
+      "8": () => _numIn("8"),
+      "9": () => _numIn("9"),
+      "0": () => _numIn("0"),
       "AC": () => _reset(),
-      "+/-": () => _toggle(),
-      ".": () => _decimalV("."),
-      "÷": () => _opIn(Operator.divide),
-      "x": () => _opIn(Operator.multiply),
-      "+": () => _opIn(Operator.plus),
-      "%": () => _opIn(Operator.mod),
-      "-": () => _opIn(Operator.minus),
-      "=": () => _answer(),
+      "+/-": () => _numIn("-"),
+      ".": () => _numIn("."),
+      "÷": () => _numIn("/"),
+      "x": () => _numIn("*"),
+      "+": () => _numIn("+"),
+      "%": () => _numIn("%"),
+      "-": () => _numIn("-"),
+      "=": () => _numIn("="),
     });
+
     super.initState();
   }
 
-  // Concatenate Strings for the input nums
-  String get _calc {
-    return [
-      _leftNum?.toString() ?? "",
-      _operatorStrings[op] ?? "",
-      _rightNum?.toString() ?? "",
-    ].where((element) => element != "").join(' ');
+  int precendence(str) {
+    if (str == "+" || str == "-") {
+      return 1;
+    } else if (str == "*" || str == "/" || str == "%" || str == "(") {
+      return 2;
+    } else {
+      return 0;
+    }
   }
 
-  void _decimalV(string) {
-    setState(() {
-      if (op == null) {
-        if (_leftNum != null) {
-          firstDec = _leftNum.toString();
-          firstDec += string;
-        } else {
-          firstDec = "0.";
-        }
-      } else {
-        if (_rightNum != null) {
-          secondDec = _rightNum.toString();
-          secondDec += string;
-        }
-      }
-    });
+  bool isOperator(String x) {
+    if (x == '/' ||
+        x == '*' ||
+        x == '-' ||
+        x == '+' ||
+        x == '=' ||
+        x == "%" ||
+        x == "(") {
+      return true;
+    }
+    return false;
   }
 
-  void _toggle() {
+  double? operations(double num1, double num2, String op) {
     setState(() {
-      if (op == null) {
-        var m = "-";
-        if (_leftNum != null) {
-          var check = _leftNum.toString();
-          m += check;
-          _leftNum = int.parse(m);
-        }
-      } else {
-        var m = "-";
-        if (_rightNum != null) {
-          var check = _rightNum.toString();
-          m += check;
-          _rightNum = int.parse(m);
-        }
+      if (op == "/") {
+        result = (num1 / num2).toString();
+      } else if (op == "+") {
+        result = (num1 + num2).toString();
+      } else if (op == "*") {
+        result = (num1 * num2).toString();
+      } else if (op == "%") {
+        result = (num1 / 100).toString();
+      } else if (op == "-") {
+        result = (num1 - num2).toString();
       }
     });
+    return double.tryParse(result);
+  }
+
+  double? perc(double num1) {
+    setState(() {
+      result = (num1 / 100).toString();
+    });
+    return double.tryParse(result);
+  }
+
+  void evalFunc(String userInput) {
+    for (int i = 0; i < userInput.length; i++) {
+      if (!isOperator(userInput[i])) {
+        var val = "";
+        while (i < userInput.length && !isOperator(userInput[i])) {
+          val += userInput[i];
+          i++;
+        }
+        operandStack.push(val);
+        print(operandStack.toString());
+        print(operandStack.top());
+        i--;
+      } else {
+        if (opStack.isEmpty) {
+          opStack.push(userInput[i]);
+        } else if (precendence(userInput[i]) >= precendence(opStack.top())) {
+          opStack.push(userInput[i]);
+        } else if (precendence(userInput[i]) <= precendence(opStack.top())) {
+          while (opStack.isNotEmpty) {
+            if (precendence(userInput[i]) <= precendence(opStack.top()) &&
+                opStack.top() != "%") {
+              if (opStack.top() == "%") {
+                var val1 = operandStack.top();
+                operandStack.pop();
+                opStack.pop();
+                operandStack.push(perc(double.tryParse(val1)!).toString());
+              }
+              var val2 = operandStack.top();
+              operandStack.pop();
+              var val1 = operandStack.top();
+              operandStack.pop();
+              var op = opStack.top();
+              opStack.pop();
+              operandStack.push(
+                  operations(double.tryParse(val1)!, double.tryParse(val2)!, op)
+                      .toString());
+            }
+          }
+          opStack.push(userInput[i]);
+        }
+      }
+    }
+    if (opStack.top() == "(") {
+      var val1 = operandStack.top();
+      operandStack.pop();
+      opStack.pop();
+      operandStack.push(_toggle(double.tryParse(val1)!).toString());
+    }
+    if (opStack.isNotEmpty) {
+      if (opStack.top() == "%") {
+        var val1 = operandStack.top();
+        operandStack.pop();
+        opStack.pop();
+        operandStack.push(perc(double.tryParse(val1)!).toString());
+      }
+    }
+
+    while (opStack.isNotEmpty && opStack.top() != "%" && opStack.top() != "(") {
+      var val2 = operandStack.top();
+      operandStack.pop();
+      var val1 = operandStack.top();
+      operandStack.pop();
+      var op = opStack.top();
+      opStack.pop();
+      operandStack.push(
+          operations(double.tryParse(val1)!, double.tryParse(val2)!, op)
+              .toString());
+    }
+  }
+
+  double? _toggle(double num1) {
+    setState(() {
+      result = (num1 * -1).toString();
+    });
+    return double.tryParse(result);
   }
 
   //clearing all values
   void _reset() {
     setState(() {
-      _leftNum = null;
-      _rightNum = null;
-      op = null;
+      input = "";
       result = "";
-      firstDec = null;
-      secondDec = null;
+      for (int i = 0; i < operandStack.length; i++) {
+        operandStack.pop();
+      }
+      for (int i = 0; i < opStack.length; i++) {
+        opStack.pop();
+      }
     });
   }
 
 //func to input nums Onclick through callback
   void _numIn(dynamic num) {
     setState(() {
-      if (op == null) {
-        if (firstDec != null) {
-          _leftNum = num;
-          var check = _leftNum.toString();
-          firstDec += check;
-          _leftNum = double.parse(firstDec);
-        } else {
-          if (_leftNum.toString().length <= 15) {
-            _leftNum = (_leftNum ?? 0) * 10 + num;
+      if (num.toString() == "=") {
+        evalFunc(input);
+      } else {
+        if (isOperator(num.toString())) {
+          if (isOperator(input[input.length - 1])) {
+            if (num.toString() != "-") {
+              input = input.substring(0, input.length - 1);
+            }
           }
         }
 
-        // loop once = num :(5), loop twice num*10+num :(5*10=50,50+5=55);
-      } else {
-        if (secondDec != null) {
-          _rightNum = num;
-          var check = _rightNum.toString();
-          secondDec += check;
-          _rightNum = double.parse(secondDec);
-        } else {
-          if (_rightNum.toString().length <= 15) {
-            _rightNum = (_rightNum ?? 0) * 10 + num;
-          }
-        }
+        input += num.toString();
       }
-    });
-  }
-
-  //set the operator
-  void _opIn(Operator opr) {
-    setState(() {
-      if (op == null) {
-        op = opr;
-      } else {
-        if (opr == Operator.mod) {
-          _answer();
-        }
-        _answer();
-        op = opr;
-      }
-    });
-  }
-
-// the "=" calculation
-  void _answer() {
-    if (op == null) {
-      return;
-    }
-    setState(() {
-      if (op != null) {
-        if (op == Operator.divide) {
-          result = (_leftNum! / _rightNum!);
-        } else if (op == Operator.plus) {
-          result = (_leftNum! + _rightNum!);
-        } else if (op == Operator.multiply) {
-          result = (_leftNum! * _rightNum!);
-        } else if (op == Operator.mod) {
-          result = (_leftNum! / 100);
-        } else if (op == Operator.minus) {
-          result = (_leftNum! - _rightNum!);
-        }
-      }
-      //==result
-      _leftNum = result;
-      _rightNum = null;
-      op = null;
     });
   }
 
@@ -202,8 +221,8 @@ class _CalculatorPage extends State<CalculatorPage> {
             children: [
               Expanded(
                   child: ResultDisplay(
-                num: _calc,
-                res: result,
+                num: input,
+                res: (operandStack.isEmpty) ? "" : operandStack.top(),
               )),
               Padding(
                 padding: const EdgeInsets.all(8.0),
